@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - AGAL</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    <header class="bg-green-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
+            <div class="text-2xl font-bold flex items-center gap-2">
+                <span>🍎</span> <span class="hidden sm:inline">AGAL</span>
+            </div>
+
+            <div class="flex flex-grow max-w-lg bg-white rounded-md overflow-hidden">
+                <input type="text" placeholder="Buscar leche, pan, cha..."
+                    class="w-full px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-green-300">
+                <button class="bg-gray-800 text-white px-4 py-2 hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="relative cursor-pointer hover:text-green-200 transition">
+                <i class="fa-solid fa-cart-shopping text-2xl"></i>
+                <span id="cart-count"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-12 flex-1 w-full">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Tu Carrito</h2>
+            <button id="add-demo" class="ml-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Agregar artículo demo</button>
+        </div>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Cart items -->
+                <div id="cart-items" class="space-y-4">
+                    <!-- items rendered by JS -->
+                </div>
+            </div>
+
+            <aside class="bg-white rounded-xl p-6 shadow-sm h-fit">
+                <h3 class="font-bold text-lg mb-4">Resumen</h3>
+                <div class="flex justify-between text-gray-700 mb-2">
+                    <span>Subtotal</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-700 mb-4">
+                    <span>Envío</span>
+                    <span id="shipping">$0.00</span>
+                </div>
+                <div class="flex justify-between font-bold text-xl mb-4">
+                    <span>Total</span>
+                    <span id="total">$0.00</span>
+                </div>
+                <button id="checkout"
+                    class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">Pagar</button>
+            </aside>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-300 text-black text-center py-6 mt-auto">
+        <p>&copy; 2026 Abarrotes AGAL - FullStack</p>
+    </footer>
+
+    <script>
+        // Datos de ejemplo (usados solo si no existe carrito en localStorage)
+        const initialCart = [
+            { id: 1, title: 'Leche Entera 1L', price: 945.00, qty: 1, img: 'https://www.recetasnestlecam.com/sites/default/files/2024-04/jarra-vaso-tipo-leche_0.jpg' },
+            { id: 2, title: 'Pan blanco', price: 45.00, qty: 2, img: 'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/a605609ba9c65252af8150a230a16dbd/Derivates/98c45bfa841fedc40bc76aeeb5c60a53ff72c41a.jpg' }
+        ];
+
+        const STORAGE_KEY = 'agal_cart';
+        const cartItemsEl = document.getElementById('cart-items');
+        const subtotalEl = document.getElementById('subtotal');
+        const shippingEl = document.getElementById('shipping');
+        const totalEl = document.getElementById('total');
+        const cartCountEl = document.getElementById('cart-count');
+
+        let cart = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!cart) {
+            cart = initialCart.slice();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+        }
+
+        function formatMoney(n) { return '$' + n.toFixed(2); }
+
+        function renderCart() {
+            cartItemsEl.innerHTML = '';
+            let subtotal = 0;
+            let count = 0;
+
+            cart.forEach(item => {
+                subtotal += item.price * item.qty;
+                count += item.qty;
+
+                const itemEl = document.createElement('article');
+                itemEl.className = 'bg-white rounded-xl shadow-sm flex overflow-hidden';
+                itemEl.innerHTML = `
+                    <div class="w-32 h-24 bg-gray-200 overflow-hidden">
+                        <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold">${item.title}</h4>
+                            <button data-id="${item.id}" class="remove text-red-500 hover:text-red-700">Eliminar</button>
+                        </div>
+                        <div class="mt-2 flex items-center gap-3">
+                            <div class="flex items-center border rounded-md overflow-hidden">
+                                <button data-id="${item.id}" class="dec px-3 py-1">-</button>
+                                <div class="px-4">${item.qty}</div>
+                                <button data-id="${item.id}" class="inc px-3 py-1">+</button>
+                            </div>
+                            <div class="ml-auto font-semibold">${formatMoney(item.price * item.qty)}</div>
+                        </div>
+                    </div>
+                `;
+
+                cartItemsEl.appendChild(itemEl);
+            });
+
+            const shipping = subtotal > 0 ? 20.00 : 0.00;
+            const total = subtotal + shipping;
+
+            subtotalEl.textContent = formatMoney(subtotal);
+            shippingEl.textContent = formatMoney(shipping);
+            totalEl.textContent = formatMoney(total);
+            cartCountEl.textContent = count;
+
+            // persistir cambios
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+
+            attachButtons();
+        }
+
+        function attachButtons() {
+            document.querySelectorAll('.inc').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    cart = cart.map(i => i.id === id ? Object.assign({}, i, { qty: i.qty + 1 }) : i);
+                    renderCart();
+                });
+            });
+            document.querySelectorAll('.dec').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    cart = cart.map(i => i.id === id ? Object.assign({}, i, { qty: Math.max(1, i.qty - 1) }) : i);
+                    renderCart();
+                });
+            });
+            document.querySelectorAll('.remove').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    cart = cart.filter(i => i.id !== id);
+                    renderCart();
+                });
+            });
+        }
+
+        const checkoutBtn = document.getElementById('checkout');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                alert('Proceder al pago (demo)');
+            });
+        }
+
+        // botón para agregar un artículo demo
+        const addDemoBtn = document.getElementById('add-demo');
+        if (addDemoBtn) {
+            addDemoBtn.addEventListener('click', () => {
+                const newId = Date.now();
+                const newItem = { id: newId, title: 'Artículo demo', price: 10.00, qty: 1, img: 'https://via.placeholder.com/150' };
+                cart.push(newItem);
+                renderCart();
+            });
+        }
+
+        renderCart();
+    </script>
+
+</body>
+
+</html>

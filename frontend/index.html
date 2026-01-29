@@ -34,7 +34,7 @@
 
             <div class="relative cursor-pointer hover:text-green-200 transition">
                 <i class="fa-solid fa-cart-shopping text-2xl"></i>
-                <span
+                <span id="cart-count"
                     class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
             </div>
         </div>
@@ -72,8 +72,8 @@
                         <span class="text-xl font-bold text-green-600">$945.00</span>
                         <span class="text-sm text-gray-400 line-through ml-2">$1050.00</span>
                     </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                    <button data-id="1" data-title="Leche Entera 1L" data-price="945" data-img="https://www.recetasnestlecam.com/sites/default/files/2024-04/jarra-vaso-tipo-leche_0.jpg"
+                        class="add-to-cart mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
                         Agregar
                     </button>
                 </div>
@@ -90,8 +90,8 @@
                     <div class="mb-4">
                         <span class="text-xl font-bold text-green-600">$32.00</span>
                     </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                    <button data-id="2" data-title="Huevo Blanco 12pz" data-price="32" data-img="https://mygourmet.com.mx/wp-content/uploads/2022/04/huevo-blanco.jpg"
+                        class="add-to-cart mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
                         Agregar
                     </button>
                 </div>
@@ -108,8 +108,8 @@
                     <div class="mb-4">
                         <span class="text-xl font-bold text-green-600">$45.00</span>
                     </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                    <button data-id="3" data-title="Pan blanco" data-price="45" data-img="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/a605609ba9c65252af8150a230a16dbd/Derivates/98c45bfa841fedc40bc76aeeb5c60a53ff72c41a.jpg"
+                        class="add-to-cart mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
                         Agregar
                     </button>
                 </div>
@@ -126,8 +126,8 @@
                     <div class="mb-4">
                         <span class="text-xl font-bold text-green-600">$38.00</span>
                     </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                    <button data-id="4" data-title="Refresco Cola 2L" data-price="38" data-img="https://hebmx.vtexassets.com/arquivos/ids/641794/63384_image-1714021200.jpg?v=638496794144670000"
+                        class="add-to-cart mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
                         Agregar
                     </button>
                 </div>
@@ -139,6 +139,35 @@
     <footer class="bg-gray-300 text-black text-center py-6 mt-auto">
         <p>&copy; 2026 Abarrotes AGAL - FullStack</p>
     </footer>
+
+    <script>
+        const STORAGE_KEY = 'agal_cart';
+        function getCart(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        function setCart(c){ localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
+        function updateCartCount(){
+            const c = getCart();
+            const count = c.reduce((s,i)=>s + (i.qty||0), 0);
+            const el = document.getElementById('cart-count');
+            if(el) el.textContent = count;
+        }
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = Number(btn.dataset.id);
+                const title = btn.dataset.title;
+                const price = Number(btn.dataset.price) || 0;
+                const img = btn.dataset.img || '';
+                const cart = getCart();
+                const existing = cart.find(i => i.id === id);
+                if(existing) existing.qty = (existing.qty || 0) + 1;
+                else cart.push({ id, title, price, qty: 1, img });
+                setCart(cart);
+                updateCartCount();
+            });
+        });
+
+        updateCartCount();
+    </script>
 
 </body>
 
