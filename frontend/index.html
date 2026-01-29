@@ -1,11 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>agal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
 </head>
-<body>
-    
+
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-green-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
+            <div class="text-2xl font-bold flex items-center gap-2">
+                <span>🍎</span> <span class="hidden sm:inline">AGAL</span>
+            </div>
+
+            <div class="flex flex-grow max-w-lg bg-white rounded-md overflow-hidden">
+                <input type="text" placeholder="Buscar leche, pan, cha..."
+                    class="w-full px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-green-300">
+                <button class="bg-gray-800 text-white px-4 py-2 hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="relative cursor-pointer hover:text-green-200 transition">
+                <i class="fa-solid fa-cart-shopping text-2xl"></i>
+                <span
+                    class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm mb-8">
+        <div
+            class="max-w-6xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto whitespace-nowrap text-sm font-medium text-gray-600">
+            <a href="#" class="text-green-600 border-b-2 border-green-600 pb-1">Todos</a>
+            <a href="#" class="hover:text-green-600 transition">Frutas y Verduras</a>
+            <a href="#" class="hover:text-green-600 transition">Lácteos</a>
+            <a href="#" class="hover:text-green-600 transition">Bebidas</a>
+            <a href="#" class="hover:text-green-600 transition">Limpieza</a>
+            <a href="#" class="hover:text-red-600 transition">Chas</a>
+
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 pb-12">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Ofertas de la Semana</h2>
+
+        <section class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+
+            <article
+                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col relative overflow-hidden group">
+                <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                    -10%</div>
+                <div class="h-48 bg-gray-200 overflow-hidden">
+                    <img src="https://www.recetasnestlecam.com/sites/default/files/2024-04/jarra-vaso-tipo-leche_0.jpg" alt="Leche"
+                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-lg mb-1">Leche Entera 1L</h3>
+                    <div class="mb-4">
+                        <span class="text-xl font-bold text-green-600">$945.00</span>
+                        <span class="text-sm text-gray-400 line-through ml-2">$1050.00</span>
+                    </div>
+                    <button
+                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                        Agregar
+                    </button>
+                </div>
+            </article>
+
+            <article
+                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
+                <div class="h-48 bg-gray-200 overflow-hidden">
+                    <img src="https://mygourmet.com.mx/wp-content/uploads/2022/04/huevo-blanco.jpg" alt="Huevo"
+                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-lg mb-1">Huevo Blanco 12pz</h3>
+                    <div class="mb-4">
+                        <span class="text-xl font-bold text-green-600">$32.00</span>
+                    </div>
+                    <button
+                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                        Agregar
+                    </button>
+                </div>
+            </article>
+
+            <article
+                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
+                <div class="h-48 bg-gray-200 overflow-hidden">
+                    <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/a605609ba9c65252af8150a230a16dbd/Derivates/98c45bfa841fedc40bc76aeeb5c60a53ff72c41a.jpg" alt="Pan"
+                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-lg mb-1">Pan blanco</h3>
+                    <div class="mb-4">
+                        <span class="text-xl font-bold text-green-600">$45.00</span>
+                    </div>
+                    <button
+                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                        Agregar
+                    </button>
+                </div>
+            </article>
+
+            <article
+                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
+                <div class="h-48 bg-gray-200 overflow-hidden ">
+                    <img src="https://hebmx.vtexassets.com/arquivos/ids/641794/63384_image-1714021200.jpg?v=638496794144670000" alt="Refresco"
+                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-lg mb-1">Refresco Cola 2L</h3>
+                    <div class="mb-4">
+                        <span class="text-xl font-bold text-green-600">$38.00</span>
+                    </div>
+                    <button
+                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
+                        Agregar
+                    </button>
+                </div>
+            </article>
+
+        </section>
+    </main>
+
+    <footer class="bg-gray-300 text-black text-center py-6 mt-auto">
+        <p>&copy; 2026 Abarrotes AGAL - FullStack</p>
+    </footer>
+
 </body>
+
 </html>
