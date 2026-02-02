@@ -9,4 +9,3 @@ class Product(Base):
     description = Column(String)
     price = Column(Float)
     image_url = Column(String)
-    category = Column(String)

@@ -4,8 +4,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>agal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <title>agal</title>
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/productos'; 
+        const STORAGE_KEY = 'agal_cart';
+        let allProducts = [];
+
+        function getCart(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        function setCart(c){ localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
+        
+        function updateCartCount(){
+            const c = getCart();
+            const count = c.reduce((s,i)=>s + (i.qty||0), 0);
+            const el = document.getElementById('cart-count');
+            if(el) el.textContent = count;
+        }
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Error API');
+                
+                allProducts = await response.json();
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('product-list').innerHTML = `<p class="text-red-500 text-center col-span-full">Error cargando productos. Revisa tu backend.</p>`;
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('product-list');
+            container.innerHTML = '';
+
+            if (products.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-center col-span-full py-8">No encontramos productos con ese nombre 😢</p>`;
+                return;
+            }
+
+            products.forEach(prod => {
+                const image = prod.image_url ? prod.image_url : 'https://via.placeholder.com/200?text=Sin+Imagen';
+
+                const html = `
+                <article class="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group border border-gray-100">
+                    <div class="h-48 bg-gray-50 overflow-hidden relative">
+                        <span class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-sm">OFERTA</span>
+                        <img src="${image}" alt="${prod.name}"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700 mix-blend-multiply">
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="font-bold text-gray-800 text-lg leading-tight mb-1">${prod.name}</h3>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-2">${prod.description}</p>
+                        
+                        <div class="mt-auto flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400 line-through">$${(prod.price * 1.1).toFixed(2)}</span>
+                                <span class="text-2xl font-bold text-green-600">$${prod.price.toFixed(2)}</span>
+                            </div>
+                            <button 
+                                onclick="addToCart(${prod.id}, '${prod.name}', ${prod.price}, '${image}')"
+                                class="bg-green-100 text-green-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-colors duration-300">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        window.addToCart = function(id, title, price, img) {
+            const cart = getCart();
+            const existing = cart.find(i => i.id === id);
+            
+            if(existing) {
+                existing.qty = (existing.qty || 0) + 1;
+            } else {
+                cart.push({ id, title, price, qty: 1, img });
+            }
+            
+            setCart(cart);
+            updateCartCount();
+            
+            const cartIcon = document.querySelector('.fa-cart-shopping');
+            cartIcon.classList.add('text-green-400');
+            setTimeout(() => cartIcon.classList.remove('text-green-400'), 200);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            fetchProducts();
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const filtered = allProducts.filter(p => 
+                        p.name.toLowerCase().includes(term) || 
+                        p.description.toLowerCase().includes(term)
+                    );
+                    renderProducts(filtered);
+                });
+            }
+        });
+    </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -20,23 +125,23 @@
 
     <header class="bg-green-600 text-white sticky top-0 z-50 shadow-md">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
-            <div class="text-2xl font-bold flex items-center gap-2">
+            <a href="index.html" class="text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition cursor-pointer">
                 <span>🍎</span> <span class="hidden sm:inline">AGAL</span>
-            </div>
+            </a>
 
             <div class="flex flex-grow max-w-lg bg-white rounded-md overflow-hidden">
-                <input type="text" placeholder="Buscar leche, pan, cha..."
+                <input id="search-input" type="text" placeholder="Buscar leche, pan..."
                     class="w-full px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-green-300">
                 <button class="bg-gray-800 text-white px-4 py-2 hover:bg-gray-700 transition">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </div>
 
-            <div class="relative cursor-pointer hover:text-green-200 transition">
+            <a href="carrito.html" class="relative cursor-pointer hover:text-green-200 transition">
                 <i class="fa-solid fa-cart-shopping text-2xl"></i>
                 <span
-                    class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
-            </div>
+                    id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+            </a>
         </div>
     </header>
 
@@ -48,92 +153,38 @@
             <a href="#" class="hover:text-green-600 transition">Lácteos</a>
             <a href="#" class="hover:text-green-600 transition">Bebidas</a>
             <a href="#" class="hover:text-green-600 transition">Limpieza</a>
-            <a href="#" class="hover:text-red-600 transition">Chas</a>
 
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 pb-12">
+        <div class="bg-gradient-to-r from-green-600 to-emerald-800 rounded-3xl p-8 mb-10 text-white flex items-center justify-between shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white opacity-10 rounded-full blur-2xl"></div>
+    <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-40 h-40 bg-green-400 opacity-20 rounded-full blur-xl"></div>
+
+    <div class="relative z-10 max-w-md">
+        <span class="bg-green-500/30 text-green-100 text-xs font-bold px-3 py-1 rounded-full border border-green-400/30 mb-4 inline-block">
+            🚀 Envíos Gratis hoy
+        </span>
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+            Frescura que llega a tu puerta
+        </h1>
+        <p class="text-green-100 mb-8 text-lg">
+            Todo lo que necesitas para tu despensa, al mejor precio y sin salir de casa.
+        </p>
+        <a href="#product-list" class="bg-white text-green-800 font-bold px-8 py-3 rounded-full hover:bg-green-50 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-block">
+            Ver Ofertas
+        </a>
+    </div>
+    
+    <div class="hidden md:flex text-9xl relative z-10 animate-bounce delay-700">
+        🥦
+    </div>
+</div>
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Ofertas de la Semana</h2>
 
-        <section class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
-
-            <article
-                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col relative overflow-hidden group">
-                <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                    -10%</div>
-                <div class="h-48 bg-gray-200 overflow-hidden">
-                    <img src="https://www.recetasnestlecam.com/sites/default/files/2024-04/jarra-vaso-tipo-leche_0.jpg" alt="Leche"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="font-bold text-lg mb-1">Leche Entera 1L</h3>
-                    <div class="mb-4">
-                        <span class="text-xl font-bold text-green-600">$945.00</span>
-                        <span class="text-sm text-gray-400 line-through ml-2">$1050.00</span>
-                    </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
-                        Agregar
-                    </button>
-                </div>
-            </article>
-
-            <article
-                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
-                <div class="h-48 bg-gray-200 overflow-hidden">
-                    <img src="https://mygourmet.com.mx/wp-content/uploads/2022/04/huevo-blanco.jpg" alt="Huevo"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="font-bold text-lg mb-1">Huevo Blanco 12pz</h3>
-                    <div class="mb-4">
-                        <span class="text-xl font-bold text-green-600">$32.00</span>
-                    </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
-                        Agregar
-                    </button>
-                </div>
-            </article>
-
-            <article
-                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
-                <div class="h-48 bg-gray-200 overflow-hidden">
-                    <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/a605609ba9c65252af8150a230a16dbd/Derivates/98c45bfa841fedc40bc76aeeb5c60a53ff72c41a.jpg" alt="Pan"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="font-bold text-lg mb-1">Pan blanco</h3>
-                    <div class="mb-4">
-                        <span class="text-xl font-bold text-green-600">$45.00</span>
-                    </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
-                        Agregar
-                    </button>
-                </div>
-            </article>
-
-            <article
-                class="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300 flex flex-col overflow-hidden group">
-                <div class="h-48 bg-gray-200 overflow-hidden ">
-                    <img src="https://hebmx.vtexassets.com/arquivos/ids/641794/63384_image-1714021200.jpg?v=638496794144670000" alt="Refresco"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="font-bold text-lg mb-1">Refresco Cola 2L</h3>
-                    <div class="mb-4">
-                        <span class="text-xl font-bold text-green-600">$38.00</span>
-                    </div>
-                    <button
-                        class="mt-auto w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition active:scale-95">
-                        Agregar
-                    </button>
-                </div>
-            </article>
-
-        </section>
+        <section id="product-list" class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+            </section>
     </main>
 
     <footer class="bg-gray-300 text-black text-center py-6 mt-auto">
