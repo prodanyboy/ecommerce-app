@@ -9,10 +9,4 @@ class Product(Base):
     description = Column(String)
     price = Column(Float)
     image_url = Column(String)
-
-class CarritoItem(Base):
-    __tablename__ = "carrito_items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"))
-    quantity = Column(Integer, default=1)
+    category = Column(String)
