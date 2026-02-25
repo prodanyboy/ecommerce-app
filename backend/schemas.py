@@ -5,6 +5,7 @@ class ProductCreate(BaseModel):
     price: float
     description: str
     image_url: str = None
+    category: str
 
 class ProductRead(ProductCreate):
     id: int

@@ -33,7 +33,8 @@ def create_producto(product: ProductCreate, db: Session = Depends(get_db)):
         name=product.name, 
         price=product.price, 
         description=product.description, 
-        image_url=product.image_url
+        image_url=product.image_url,
+        category=product.category
     )
     db.add(new_product)
     db.commit()

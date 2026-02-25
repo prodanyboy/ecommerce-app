@@ -8,7 +8,7 @@
 
     <title>agal</title>
     <script>
-        const API_URL = 'http://127.0.0.1:8000/productos'; 
+        const API_URL = 'https://mi-tienda-agal.onrender.com/productos'; 
         const STORAGE_KEY = 'agal_cart';
         let allProducts = [];
 
@@ -110,6 +110,15 @@
                 });
             }
         });
+
+        window.filterByCategory = function(category) {
+        if (category === 'all') {
+            renderProducts(allProducts);
+        } else {
+            const filtered = allProducts.filter(p => p.category === category);
+            renderProducts(filtered);
+        }};
+
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -146,15 +155,14 @@
     </header>
 
     <nav class="bg-white shadow-sm mb-8">
-        <div
-            class="max-w-6xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto whitespace-nowrap text-sm font-medium text-gray-600">
-            <a href="#" class="text-green-600 border-b-2 border-green-600 pb-1">Todos</a>
-            <a href="#" class="hover:text-green-600 transition">Frutas y Verduras</a>
-            <a href="#" class="hover:text-green-600 transition">Lácteos</a>
-            <a href="#" class="hover:text-green-600 transition">Bebidas</a>
-            <a href="#" class="hover:text-green-600 transition">Limpieza</a>
-
-        </div>
+    <div class="max-w-6xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto whitespace-nowrap text-sm font-medium text-gray-600">
+        <button onclick="filterByCategory('all')" class="hover:text-green-600 transition focus:text-green-600">Todos</button>
+        
+        <button onclick="filterByCategory('Frutas y Verduras')" class="hover:text-green-600 transition focus:text-green-600">Frutas y Verduras</button>
+        <button onclick="filterByCategory('Lácteos')" class="hover:text-green-600 transition focus:text-green-600">Lácteos</button>
+        <button onclick="filterByCategory('Bebidas')" class="hover:text-green-600 transition focus:text-green-600">Bebidas</button>
+        <button onclick="filterByCategory('Limpieza')" class="hover:text-green-600 transition focus:text-green-600">Limpieza</button>
+    </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 pb-12">
